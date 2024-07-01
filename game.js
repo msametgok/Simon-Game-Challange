@@ -7,33 +7,32 @@ let level = 0;
 
 $(".btn").click(function () {
   if(gameStarted){
-
     let userChosenColour = $(this).attr("id");
     userClickedPattern.push(userChosenColour);
     playSound(userChosenColour);
     animatePress(userChosenColour);
-    setTimeout(()=>{
-      nextSequence()
-    },1000)
-
+    checkAnswer(userClickedPattern.length - 1);
   }
   else{
-    $("h1").text("Game Over, Press Any Key to Restart")
-
-    //Buraya daha sonra kodlar gelecek
-    //Wrong alert sesi ve kirmizi background eklenecek
+    $("h1").text("Game Over, Press Any Key to Restart");
+    playSound("wrong");
+    $("body").addClass("game-over");
+    setTimeout(() => {
+      $("body").removeClass("game-over");
+    }, 200);
   }
-  
 });
 
-$(document).on( "keydown", function() {
+$(document).on("keydown", function() {
   if(!gameStarted){
+    $("h1").text("Level 0");
     nextSequence();
     gameStarted = true;
   }
-} );
+});
 
 function nextSequence() {
+  userClickedPattern = [];
   let randomNumber = Math.floor(Math.random() * 4);
   let randomChosenColour = buttonColors[randomNumber];
   gamePattern.push(randomChosenColour);
@@ -41,7 +40,7 @@ function nextSequence() {
   $(`#${randomChosenColour}`).fadeIn(100).fadeOut(100).fadeIn(100);
   playSound(randomChosenColour);
   level++;
-  $("h1").text(`Level ${level}`)
+  $("h1").text(`Level ${level}`);
 }
 
 function playSound(name) {
@@ -54,5 +53,30 @@ function animatePress(currentColour) {
 
   setTimeout(function(){
     $(`#${currentColour}`).removeClass('pressed')
-  }, 100)
+  }, 100);
+}
+
+function checkAnswer(currentLevel) {
+  if (userClickedPattern[currentLevel] === gamePattern[currentLevel]) {
+    if (userClickedPattern.length === gamePattern.length) {
+      setTimeout(() => {
+        nextSequence();
+      }, 1000);
+    }
+  } else {
+    $("h1").text("Game Over, Press Any Key to Restart");
+    playSound("wrong");
+    $("body").addClass("game-over");
+    setTimeout(() => {
+      $("body").removeClass("game-over");
+    }, 200);
+
+    startOver();
+  }
+}
+
+function startOver() {
+  level = 0;
+  gamePattern = [];
+  gameStarted = false;
 }
